@@ -47,6 +47,8 @@
             float brightnessScaler;
             float2 attenuationCenter;
             float attenuationRadius;
+            
+            float luminanceThreshold;
 
             float luminance(float3 rgb) {
                 return 0.2126*rgb.r + 0.7152*rgb.g + 0.0722 * rgb.b;
@@ -63,20 +65,28 @@
                 float4 col = tex2D(_MainTex, i.uv);
                 float3 hsv = rgb_to_hsv(col.xyz);
 
-                hsv.x = frac(hsv.x + hueShift);
-                hsv.y *= saturationScaler;
-                hsv.z *= brightnessScaler;
+                if (luminance(col) < luminanceThreshold) {
+                    // shadow                    
+                    hsv.x = frac(hsv.x + 0.5);
+                    col.xyz = hsv_to_rgb(hsv);
+                    return col;
+                } else {
+                    // illuminated
+                    hsv.x = frac(hsv.x + hueShift);
+                    hsv.y *= saturationScaler;
+                    hsv.z *= brightnessScaler;
 
-                #ifdef ATTENUATE_SATURATION
-                    hsv.y *= attenuation(i.uv);
-                #endif
+                    #ifdef ATTENUATE_SATURATION
+                        hsv.y *= attenuation(i.uv);
+                    #endif
 
-                #ifdef ATTENUATE_BRIGHTNESS
-                    hsv.z *= attenuation(i.uv);
-                #endif
+                    #ifdef ATTENUATE_BRIGHTNESS
+                        hsv.z *= attenuation(i.uv);
+                    #endif
 
 
-                col.xyz = hsv_to_rgb(hsv);
+                    col.xyz = hsv_to_rgb(hsv);
+                }
 
                 return col;
             }

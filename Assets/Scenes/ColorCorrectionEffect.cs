@@ -20,6 +20,8 @@ public class ColorCorrectionEffect : PostEffectBase
     [Range(0f , 1f)]
     public float attenuationRadius = .3f;
 
+    public float luminanceThreshold = .3f;
+
     public Transform followObject;
 
     // Start is called before the first frame update
@@ -47,6 +49,7 @@ public class ColorCorrectionEffect : PostEffectBase
             material.SetFloat("brightnessScaler", brightnessScaler);
             material.SetVector("attenuationCenter", attenuationCenter);
             material.SetFloat("attenuationRadius", attenuationRadius);
+            material.SetFloat("luminanceThreshold", luminanceThreshold);
 
             if (attenuateSaturation) material.EnableKeyword("ATTENUATE_SATURATION");
             else material.DisableKeyword("ATTENUATE_SATURATION");
